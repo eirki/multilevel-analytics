@@ -1,0 +1,53 @@
+version: '3.9'
+services:
+    postgres:
+        image: postgres
+        env_file:
+            - .env
+        volumes:
+            - ~/postgres:/var/lib/postgresql/data
+    data_postgres:
+        image: postgres
+        environment:
+            - POSTGRES_USER=${DATA_DB_USER}
+            - POSTGRES_PASSWORD=${DATA_DB_PASSWORD}
+            - POSTGRES_DB=${DATA_DB_DB}
+        volumes:
+            - ~/data_postgres:/var/lib/postgresql/data
+            - ./csv:/tmp/csv
+        ports:
+        - 5435:5432
+    scheduler:
+        image: apache/airflow
+        command: scheduler
+        deploy:
+          restart_policy:
+              condition: on-failure
+        depends_on:
+            - postgres
+        env_file:
+            - .env
+        volumes:
+            - ./plugins:/opt/airflow/plugins
+            - ./data:/opt/airflow/data
+            - ./dags:/opt/airflow/dags
+            - ./logs:/opt/airflow/logs
+            - ./csv:/tmp/csv
+    webserver:
+        image: apache/airflow
+        entrypoint: ./scripts/entrypoint.sh
+        deploy:
+          restart_policy:
+              condition: on-failure
+        depends_on:
+            - postgres
+            - scheduler
+        env_file:
+            - .env
+        volumes:
+            - ./plugins:/opt/airflow/plugins
+            - ./data:/opt/airflow/data
+            - ./dags:/opt/airflow/dags
+            - ./scripts:/opt/airflow/scripts
+        ports:
+            - "8080:8080"
