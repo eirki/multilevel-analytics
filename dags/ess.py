@@ -1,14 +1,16 @@
 from pathlib import Path
+import datetime as dt
 
 from airflow import DAG
 import pandas as pd
 import numpy as np
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
-from airflow.operators.postgres_operator import PostgresOperator
-import datetime as dt
+from operators.s3_to_redshift import s3ToRedshiftOperator
+from operators.create_table import CreateTableOperator
 
 from helpers import queries
+from helpers.s3_move import upload_to_S3
 
 default_args = {
     "owner": "ebs",
@@ -126,21 +128,35 @@ quality_task = PythonOperator(
     task_id="quality_check",
     python_callable=check_data_quality,
 )
-create_table = PostgresOperator(
-    postgres_conn_id="data_postgres",
+
+load_task = PythonOperator(
+    dag=dag,
+    task_id="load_data",
+    python_callable=upload_to_S3,
+    op_kwargs={
+        "from_path": Path("/tmp/csv/ess9.csv"),
+    },
+)
+
+create_table = CreateTableOperator(
+    postgres_conn_id="redshift",
     dag=dag,
     task_id="create_table",
-    sql=queries.create_ess9_table,
+    redshift_conn_id="redshift",
+    query=queries.create_ess9_table,
 )
-stage_to_database = PostgresOperator(
-    postgres_conn_id="data_postgres",
+stage_to_database = s3ToRedshiftOperator(
     dag=dag,
     task_id="stage_data",
-    sql=queries.copy_from_s3.format(table="ESS9", filename="ess9"),
+    aws_credentials="aws_credentials",
+    redshift_conn_id="redshift",
+    table="ESS9",
+    filename="ess9",
+    query=queries.copy_from_s3
 )
 
 end_operator = DummyOperator(task_id="Stop_execution", dag=dag)
 
-start_operator >> convert_data_task >> quality_task >> stage_to_database
+start_operator >> convert_data_task >> quality_task >> load_task >> stage_to_database
 start_operator >> create_table >> stage_to_database
 stage_to_database >> end_operator

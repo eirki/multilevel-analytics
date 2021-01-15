@@ -4,7 +4,8 @@ create table if not exists demo_r_pjanind3(
     unit text not null,
     geo text not null,
     time integer not null,
-    value float
+    value float,
+    downloaded_at datetime not null
 );
 """
 
@@ -16,13 +17,13 @@ create table if not exists demo_r_pjangrp3(
     age text not null,
     geo text not null,
     time integer not null,
-    value float
+    value float,
+    downloaded_at datetime not null
 );
 """
 
 
 create_ess9_table = """
-drop table if exists ESS9;
 create table if not exists ESS9 (
     idno int4,
     region text,
@@ -51,9 +52,11 @@ create table if not exists ESS9 (
 """
 
 copy_from_s3 = """COPY {table}
-    FROM '/tmp/csv/{filename}.csv'
+    FROM '{path}.csv'
+    ACCESS_KEY_ID '{access_key_id}'
+    SECRET_ACCESS_KEY '{secret_access_key}'
     DELIMITER ','
-    CSV HEADER;
+    CSV IGNOREHEADER 1
+    compupdate off region 'us-west-1'
+    ;
 """
-
-

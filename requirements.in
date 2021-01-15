@@ -1,0 +1,9 @@
+black
+flake8
+ipykernel
+isort
+mypy
+pandas
+tabulate
+psycopg2
+

@@ -83,13 +83,14 @@ demo_r_pjanind3 = {
             "Young-age dependency ratio 3rd variant (population aged 0-19 to population 20-64 years)",
         ),
     ],
-    "expected_columns": ["indic_de", "unit", "geo", "time", "value"],
+    "expected_columns": ["indic_de", "unit", "geo", "time", "value", "downloaded_at"],
     "expected_column_types": {
         "indic_de": np.dtype("O"),
         "unit": np.dtype("O"),
         "geo": np.dtype("O"),
         "time": np.dtype("int64"),
         "value": np.dtype("float64"),
+        'downloaded_at': np.dtype('<M8[ns]')
     },
 }
 
@@ -122,7 +123,7 @@ demo_r_pjangrp3 = {
         ("Y_GE90", "90 years or over"),
         ("Y_LT5", "Less than 5 years"),
     ],
-    "expected_columns": ["sex", "unit", "age", "geo", "time", "value"],
+    "expected_columns": ["sex", "unit", "age", "geo", "time", "value", "downloaded_at"],
     "expected_column_types": {
         "sex": np.dtype("O"),
         "unit": np.dtype("O"),
@@ -130,5 +131,6 @@ demo_r_pjangrp3 = {
         "geo": np.dtype("O"),
         "time": np.dtype("int64"),
         "value": np.dtype("int64"),
+        'downloaded_at': np.dtype('<M8[ns]')
     },
 }
