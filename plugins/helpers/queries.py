@@ -24,7 +24,8 @@ create table if not exists demo_r_pjangrp3(
 
 
 create_ess9_table = """
-create table if not exists ESS9 (
+drop table if exists ESS9;
+create table ESS9 (
     idno int4,
     region text,
     regunit int2,

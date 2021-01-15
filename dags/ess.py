@@ -16,7 +16,7 @@ default_args = {
     "owner": "ebs",
     "depends_on_past": False,
     "start_date": dt.datetime(2021, 1, 12),
-    "retries": 0,
+    "retries": 3,
     "email_on_retry": False,
     "catchup_by_default": False,
 }

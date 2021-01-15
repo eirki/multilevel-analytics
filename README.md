@@ -17,7 +17,7 @@ The following steps were taken in completing the project:
 - Figuring out the Eurostat API and write a downloader which takes datasets codes as input and downloads the data.
 - Inspect the data from the European Social Survey to see if it can be joined with Eurostat data on the regional level (it can).
 - Move ad-hoc code into formal DAGs, with concrete steps for data quality checks.
-- Create SQL database schemas for the data.
+- Create SQL database schemas for the data, using local Postgres database for testing.
 - Provision AWS services (S3 and Redshift), and implement tasks to move downloaded data into the cloud.
 
 ## Purpose
@@ -83,3 +83,18 @@ This is already taken care of, since the project uses Airflow.
 ## What if the database needed to be accessed by 100+ people?
 Amazon Redshift should be able to scale in order to handle access from 100 + people.
 
+
+## How to run
+Requirements:
+- Docker compose must be installed
+- A file called `.env` with the following variables:
+    - AIRFLOW__CORE__SQL_ALCHEMY_CONN
+    - AIRFLOW__CORE__EXECUTOR
+    - AIRFLOW__CORE__FERNET_KEY
+    - POSTGRES_USER
+    - POSTGRES_PASSWORD
+    - POSTGRES_DB
+- An AWS S3 bucket, with the bucket name assigned to the Airflow variable `s3_bucket_name`
+- An AWS Redshift instance with the credentials stored with the Airflow Conn Id `redshift`
+- AWS credentials stored with the Airflow Conn Id `aws_credentials`
+- Airflow can be run with the command `docker-compose up`. The DAGs should then be available in the Airflow UI.

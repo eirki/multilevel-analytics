@@ -2,6 +2,7 @@ from airflow.hooks.postgres_hook import PostgresHook
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 from airflow.contrib.hooks.aws_hook import AwsHook
+from airflow.models import Variable
 
 
 class s3ToRedshiftOperator(BaseOperator):
@@ -34,7 +35,7 @@ class s3ToRedshiftOperator(BaseOperator):
         self.log.info("Authenticating ")
         aws_hook = AwsHook(self.aws_credentials)
         credentials = aws_hook.get_credentials()
-        bucket_name = "ebs-capstone-bucket"
+        bucket_name = Variable.get("s3_bucket_name")
         s3_path = f"s3://{bucket_name}/{self.filename}"
         formatted_sql = self.query.format(
             table=self.table,
